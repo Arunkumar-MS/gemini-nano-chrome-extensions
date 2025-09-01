@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chrome AI Chat</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+    <div class="chat-container" role="main">
+        <header class="chat-header">
+            <h1>🤖 Chrome AI Chat</h1>
+            <div class="status loading" id="status" role="status" aria-live="polite">Initializing...</div>
+            <div class="progress-bar" id="progressBar" style="display: none;" role="progressbar" aria-valuemin="0" aria-valuemax="100">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div class="usage-info" id="usageInfo" aria-label="Token usage"></div>
+        </header>
+        
+        <main class="chat-messages" id="chatMessages" role="log" aria-live="polite" aria-label="Chat conversation">
+            
+            <div class="typing-indicator" id="typingIndicator" aria-label="AI is typing" aria-hidden="true">
+                <span class="dot" aria-hidden="true"></span>
+                <span class="dot" aria-hidden="true"></span>
+                <span class="dot" aria-hidden="true"></span>
+            </div>
+        </main>
+        
+        <footer class="chat-input-container">
+            <div class="chat-input-form">
+                <label for="chatInput" class="sr-only">Type your message</label>
+                <textarea 
+                    id="chatInput" 
+                    class="chat-input" 
+                    placeholder="Ask anything..." 
+                    rows="1"
+                    disabled
+                    aria-label="Chat input"
+                    aria-describedby="chatInputHelp"
+                ></textarea>
+                <button id="sendButton" class="send-button" disabled aria-label="Send message">
+                    <span aria-hidden="true">📤</span>
+                    Send
+                </button>
+            </div>
+            <div id="chatInputHelp" class="sr-only">Press Enter to send, Shift+Enter for new line</div>
+            <div class="controls" role="toolbar" aria-label="Chat controls">
+                <button class="control-button" id="historyButton" aria-label="View conversation history">
+                    <span aria-hidden="true">📚</span> History
+                </button>
+                <button class="control-button" id="saveButton" aria-label="Save current conversation">
+                    <span aria-hidden="true">💾</span> Save
+                </button>
+                <button class="control-button" id="clearButton" aria-label="Clear chat history">
+                    <span aria-hidden="true">🗑️</span> Clear
+                </button>
+                <button class="control-button" id="newSessionButton" aria-label="Start new chat session">
+                    <span aria-hidden="true">✨</span> New Session
+                </button>
+                <button id="openInNewTabButton" class="open-new-tab-button" aria-label="Open chat in fullscreen mode">
+                    <span aria-hidden="true">🚀</span> Full Screen
+                </button>
+            </div>
+        </footer>
+    </div>
+    
+    <!-- Chat History Modal -->
+    <div id="historyModal" class="modal" role="dialog" aria-labelledby="historyModalTitle" aria-hidden="true">
+        <div class="modal-backdrop" id="historyModalBackdrop"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="historyModalTitle">💬 Conversation History</h2>
+                <button id="closeHistoryModal" class="modal-close" aria-label="Close history modal">×</button>
+            </div>
+            <div class="modal-body">
+                <div id="historyList" class="history-list">
+                    <div class="history-empty">
+                        <p>No saved conversations yet.</p>
+                        <p class="text-muted">Your conversations will be automatically saved as you chat.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="popup.js"></script>
+</body>
+</html>

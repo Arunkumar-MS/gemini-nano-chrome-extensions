@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>🤖 AI Chat — Full Screen Experience</title>
+	<meta name="description" content="Full-screen Chrome AI Chat interface powered by local Gemini Nano for complete privacy" />
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+	<link rel="stylesheet" href="full_chat.css" />
+</head>
+<body>
+	<!-- Loading overlay: visible while status is "loading" (initialized by popup.js) -->
+	<div id="loadingOverlay" aria-hidden="false" style="position:fixed;inset:0;display:flex;align-items:center;justify-content:center;z-index:60;backdrop-filter: blur(6px);background:linear-gradient(180deg, rgba(2,6,23,0.65), rgba(2,6,23,0.75));">
+		<div style="max-width:880px;width:90%;background:rgba(11,18,32,0.9);padding:18px;border-radius:12px;border:1px solid rgba(255,255,255,0.04);box-shadow:0 10px 40px rgba(0,0,0,0.6);display:flex;gap:14px;align-items:center;">
+			<div style="width:52px;height:52px;display:flex;align-items:center;justify-content:center;border-radius:10px;background:linear-gradient(180deg,#12213b,#0b1728);box-shadow:inset 0 -6px 18px rgba(59,130,246,0.06);">
+				<!-- subtle spinner/dots -->
+				<svg width="28" height="28" viewBox="0 0 50 50" aria-hidden="true">
+					<circle cx="25" cy="25" r="20" stroke="rgba(255,255,255,0.08)" stroke-width="4" fill="none"></circle>
+					<path id="arc" d="M25 5 A20 20 0 0 1 45 25" stroke="#6ea8fe" stroke-width="4" stroke-linecap="round" fill="none">
+						<animateTransform attributeName="transform" attributeType="XML" type="rotate" from="0 25 25" to="360 25 25" dur="1.1s" repeatCount="indefinite"/>
+					</path>
+				</svg>
+			</div>
+
+			<div style="flex:1;min-width:0">
+				<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
+					<!-- Prominent, dynamic main title -->
+					<div id="overlayMainTitle" style="font-size:1rem;color:#e6eef8;font-weight:700;">Initializing AI</div>
+					<div id="overlayStatusText" style="font-size:0.95rem;color:#9aa8bf;">Checking availability...</div>
+				</div>
+
+				<div style="margin-top:10px;">
+					<!-- mirrored progress bar -->
+					<div style="height:8px;background:rgba(255,255,255,0.03);border-radius:999px;overflow:hidden;">
+						<div id="overlayProgress" style="height:100%;width:0%;background:linear-gradient(90deg,#6ea8fe,#3b82f6);transition:width .18s ease;"></div>
+					</div>
+					<!-- dynamic hint that will change if download is slow or complete -->
+					<div id="overlayHint" style="margin-top:8px;color:#98a0b3;font-size:0.88rem;">
+						Downloading model may take a few minutes on first run.
+					</div>
+				</div>
+			</div>
+
+			<div style="display:flex;flex-direction:column;gap:8px;align-items:flex-end;">
+				<button id="overlayClose" title="Close overlay" style="background:transparent;border:1px solid rgba(255,255,255,0.04);color:#9aa8bf;padding:6px 10px;border-radius:8px;cursor:pointer">Dismiss</button>
+			</div>
+		</div>
+	</div>
+
+	<div class="app-shell" role="main">
+		<header class="app-header">
+			<div class="left">
+				<button id="backButton" class="icon-btn" title="Close full-screen chat" aria-label="Close full-screen chat and return to popup">✕</button>
+				<h1 class="app-title">🤖 AI Chat</h1>
+			</div>
+			<div class="right">
+				<div id="status" class="status" role="status" aria-live="polite">Initializing...</div>
+			</div>
+		</header>
+
+		<div class="meta-row">
+			<div id="usageInfo" class="usage-info" aria-label="Token usage information"></div>
+			<div id="progressBar" class="progress-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-hidden="true">
+				<div id="progressFill" class="progress-fill"></div>
+			</div>
+		</div>
+
+		<main id="chatArea" class="chat-area">
+			<section id="chatMessages" class="chat-messages" role="log" aria-live="polite" aria-label="Chat conversation">
+				<!-- initial system message -->
+				<div class="message system" role="status">
+					🎉 Welcome to full-screen AI Chat! This uses Chrome's built-in AI running locally on your device for complete privacy and security.
+				</div>
+
+				<!-- typing indicator must be inside chatMessages -->
+				<div id="typingIndicator" class="typing-indicator" aria-label="AI is typing" aria-hidden="true">
+					<span class="dot" aria-hidden="true"></span>
+					<span class="dot" aria-hidden="true"></span>
+					<span class="dot" aria-hidden="true"></span>
+				</div>
+			</section>
+
+			<aside class="right-panel" role="complementary" aria-label="Chat controls and information">
+				<div class="panel-card">
+					<h3>💬 Conversation</h3>
+					<p class="muted">Your conversation is completely private and runs locally on this device. No data is sent to external servers.</p>
+					<hr />
+					<button id="historyButton" class="btn-ghost" aria-label="View conversation history">
+						<span aria-hidden="true">📚</span> History
+					</button>
+					<button id="saveButton" class="btn-ghost" aria-label="Save current conversation">
+						<span aria-hidden="true">💾</span> Save
+					</button>
+					<button id="newSessionButton" class="btn-ghost" aria-label="Start a new chat session and clear context">
+						<span aria-hidden="true">✨</span> New Session
+					</button>
+					<button id="clearButton" class="btn-ghost" aria-label="Clear chat history while keeping context">
+						<span aria-hidden="true">🗑️</span> Clear Chat
+					</button>
+				</div>
+			</aside>
+		</main>
+
+		<footer class="input-footer">
+			<div class="input-row">
+				<label for="chatInput" class="sr-only">Type your message to the AI</label>
+				<textarea 
+					id="chatInput" 
+					class="chat-input" 
+					placeholder="Ask anything..." 
+					rows="1" 
+					disabled
+					aria-label="Chat input field"
+					aria-describedby="chatInputHelp"
+				></textarea>
+				<button id="sendButton" class="btn-primary" disabled aria-label="Send message to AI">
+					<span aria-hidden="true">🚀</span> Send
+				</button>
+			</div>
+			<div id="chatInputHelp" class="sr-only">Press Enter to send, Shift+Enter for new line</div>
+		</footer>
+	</div>
+	
+	<!-- Chat History Modal -->
+	<div id="historyModal" class="modal" role="dialog" aria-labelledby="historyModalTitle" aria-hidden="true">
+		<div class="modal-backdrop" id="historyModalBackdrop"></div>
+		<div class="modal-content">
+			<div class="modal-header">
+				<h2 id="historyModalTitle">💬 Conversation History</h2>
+				<button id="closeHistoryModal" class="modal-close" aria-label="Close history modal">×</button>
+			</div>
+			<div class="modal-body">
+				<div id="historyList" class="history-list">
+					<div class="history-empty">
+						<p>No saved conversations yet.</p>
+						<p class="text-muted">Your conversations will be automatically saved as you chat.</p>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<script src="overlay.js"></script>
+	<script src="popup.js"></script>
+</body>
+</html>

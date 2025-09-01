@@ -1,5 +1,5 @@
 # 🤖 Chrome AI Chat Extension
-
+![Demo chat](./demo.jpeg)
 A powerful Chrome extension that brings Google's **Gemini Nano AI** directly to your browser for completely **private, offline AI conversations**. No data leaves your device - everything runs locally using Chrome's built-in AI capabilities.
 
 ![Chrome AI Chat Extension](https://img.shields.io/badge/Chrome-Extension-blue?style=for-the-badge&logo=googlechrome)
